@@ -31,4 +31,8 @@ func SetupRoutes(app *fiber.App) {
 	arch.Get("/movimiento/historial/:hc", controllers.ObtenerHistorialHC)
 	arch.Get("/movimiento/ultimo-estado/:hc", controllers.ObtenerUltimoEstadoHC)
 
+	// Módulo Odontología
+	odonto := api.Group("/odontologia")
+	odonto.Get("/citas-hoy", controllers.GetCitasOdontologiaHoy)
+	odonto.Get("/hoja-atencion/:cuenta", controllers.GetHojaAtencionOdontologia) //
 }

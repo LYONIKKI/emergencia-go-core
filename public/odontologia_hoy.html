@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIGH - Odontología Hoy</title>
+    <link rel="stylesheet" href="/banco_sangre/public/css/tailwind.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        .header-odonto { background: linear-gradient(45deg, #0284c7, #0369a1); }
+    </style>
+</head>
+
+<body class="flex min-h-screen bg-gray-100 overflow-x-hidden">
+    <!-- Sidebar inyectado dinámicamente si usas layout.js -->
+    <div id="sidebar-container" class="flex-shrink-0 flex self-stretch"></div>
+
+    <div class="flex-1 flex flex-col min-w-0 min-h-screen">
+        <!-- Header -->
+        <header class="header-odonto text-white p-6 shadow-md rounded-b-2xl mb-6">
+            <div class="container-fluid flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <span class="inline-block bg-white bg-opacity-20 px-3 py-1 rounded-full text-xs font-extrabold tracking-wide mb-2">CONSULTORIOS EXTERNOS V. 2.0</span>
+                    <h1 class="text-2xl md:text-3xl font-black flex items-center gap-2">
+                        <i class="bi bi-person-lines-fill text-white"></i> ODONTOLOGÍA: <span id="fecha-actual"></span>
+                    </h1>
+                    <p class="text-xs text-blue-100 opacity-90 mt-1">Impresión y monitoreo de atenciones de consultorio externo | Data Center - UEI</p>
+                </div>
+                <div>
+                    <span id="contador-citas" class="bg-white text-blue-700 font-extrabold px-4 py-2 rounded-xl text-sm shadow">
+                        0 Pacientes
+                    </span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Barra de búsqueda y registros -->
+        <div class="px-6 mb-4">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <span class="font-bold text-gray-500 uppercase tracking-wider">Mostrar:</span>
+                    <select id="select-filas" class="bg-gray-50 border border-gray-300 rounded-lg px-2.5 py-1.5 font-bold text-gray-700 outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="10" selected>10 registros</option>
+                        <option value="25">25 registros</option>
+                        <option value="50">50 registros</option>
+                    </select>
+                </div>
+                <div class="w-full sm:w-80">
+                    <input type="text" id="input-busqueda" placeholder="Buscar por DNI, H.C., Paciente o N° Cuenta..." class="w-full bg-gray-50 border border-gray-300 focus:border-blue-500 focus:bg-white rounded-lg px-3 py-2 text-xs outline-none transition">
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla -->
+        <main class="px-6 mb-6 flex-1">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-900 text-white text-[11px] font-bold uppercase tracking-wider text-center">
+                                <th class="p-3 w-24">Hora</th>
+                                <th class="p-3 w-28">N° Cuenta</th>
+                                <th class="p-3 w-28">H.C.</th>
+                                <th class="p-3 text-left">Paciente</th>
+                                <th class="p-3 w-28">DNI</th>
+                                <th class="p-3 w-36">Seguro</th>
+                                <th class="p-3 text-left w-52">Servicio / Odontólogo</th>
+                                <th class="p-3 w-40">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaBody" class="divide-y divide-gray-100">
+                            <tr>
+                                <td colspan="8" class="p-6 text-center text-gray-400 text-xs">
+                                    <i class="bi bi-arrow-repeat animate-spin mr-2"></i> Cargando citas odontológicas...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Paginador -->
+                <div class="p-4 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                    <div class="text-gray-500 font-medium">
+                        Mostrando <span id="pag-desde" class="font-bold text-gray-700">0</span> a <span id="pag-hasta" class="font-bold text-gray-700">0</span> de <span id="pag-total" class="font-bold text-gray-700">0</span> citas
+                    </div>
+                    <div class="flex items-center space-x-1" id="contenedor-paginacion"></div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="bg-gray-900 text-gray-400 text-center py-4 text-xs border-t border-gray-800 mt-auto">
+            <div class="container">
+                Desarrollado por: Ing. Anhgelo Smith Vega Poma<br>
+                Unidad de Estadística e Informática - Data Center | &copy; 2026 Hospital Regional Daniel Alcides Carrión
+            </div>
+        </footer>
+    </div>
+
+    <script src="js/layout.js"></script>
+    <script src="js/odontologia_hoy.js"></script>
+</body>
+</html>

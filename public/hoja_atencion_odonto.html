@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hoja de Atención Médica</title>
+    <style>
+        * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
+        body { margin: 0; padding: 15px; color: #000; background-color: #fff; font-size: 11px; }
+
+        @page { size: A4 portrait; margin: 8mm; }
+        @media print {
+            body { padding: 0; }
+            .no-print { display: none !important; }
+        }
+
+        .header-table { width: 100%; border-collapse: collapse; margin-bottom: 5px; }
+        .header-table td { vertical-align: top; }
+
+        .titulo-doc { text-align: center; font-size: 14px; font-weight: bold; margin: 10px 0 6px 0; }
+
+        .box-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1.5px solid #000;
+            margin-bottom: 4px;
+        }
+        .box-table td, .box-table th {
+            padding: 2.5px 4px;
+            font-size: 10.5px;
+            vertical-align: top;
+        }
+
+        .bold { font-weight: bold; }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+
+        .linea-puntos {
+            border-bottom: 1px dashed #777;
+            margin: 2px 0 3px 0;
+            height: 1px;
+        }
+
+        .btn-imprimir {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            background: #d93025;
+            color: #fff;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <button onclick="window.print()" class="btn-imprimir no-print">Imprimir Documento</button>
+
+    <!-- Membrete -->
+    <table class="header-table">
+        <tr>
+            <td style="width: 25%;">
+                <img src="img/hospital_logo.png" style="max-height: 52px;" alt="Logo Hospital">
+            </td>
+            <td style="width: 50%; text-align: center;">
+                <div style="font-size: 11px; font-weight: bold;">HOSPITAL REGIONAL DANIEL ALCIDES CARRION GARCIA</div>
+                <div style="font-size: 9.5px;">Av. Daniel Alcides Carrión 520, Cerro De Pasco</div>
+                <div style="font-size: 9.5px;">TELEFONO: (063) 422049</div>
+            </td>
+            <td style="width: 25%; text-align: right; font-size: 9.5px;">
+                <div id="print-fecha-hoy"></div>
+                <div id="print-hora-hoy"></div>
+                <div style="margin-top: 4px;">Página 1 de 1</div>
+            </td>
+        </tr>
+    </table>
+
+    <div class="titulo-doc">Detalle de Atención médica del Paciente</div>
+
+    <!-- CUADRO 1: Médico, Paciente y Consulta -->
+    <table class="box-table">
+        <tr>
+            <td class="bold" style="width: 12%;">Médico:</td>
+            <td style="width: 50%;"><span id="lbl-medico"></span> &nbsp;&nbsp;&nbsp; Colegiatura: <span id="lbl-colegiatura"></span> &nbsp; RNE: <span id="lbl-rne"></span></td>
+            <td class="bold" style="width: 18%;">Fecha Consulta:</td>
+            <td class="text-right" style="width: 20%;" id="lbl-fechaconsulta"></td>
+        </tr>
+        <tr>
+            <td class="bold">Paciente:</td>
+            <td>(<span id="lbl-dni"></span>) <span id="lbl-paciente" class="bold"></span> (Edad: <span id="lbl-edad"></span> Años) (<span id="lbl-seguro"></span>)</td>
+            <td class="bold">Hora Atención:</td>
+            <td class="text-right" id="lbl-horaatencion"></td>
+        </tr>
+        <tr>
+            <td class="bold">Consultorio:</td>
+            <td id="lbl-consultorio"></td>
+            <td class="bold">N° Cuenta:</td>
+            <td class="text-right bold" id="lbl-cuenta"></td>
+        </tr>
+        <tr>
+            <td colspan="2"></td>
+            <td class="bold">Fecha Proxima</td>
+            <td class="text-right" id="lbl-fechaproxima"></td>
+        </tr>
+    </table>
+
+    <!-- CUADRO 2: Funciones Vitales -->
+    <table class="box-table">
+        <tr>
+            <td class="bold" style="width: 15%;">P.Arterial:</td>
+            <td style="width: 45%;"><span id="lbl-pa"></span> Sistólica/Diastólica</td>
+            <td class="bold" style="width: 20%;">Talla:</td>
+            <td class="text-right" style="width: 20%;"><span id="lbl-talla"></span> cm</td>
+        </tr>
+        <tr>
+            <td class="bold">Temperatura:</td>
+            <td><span id="lbl-temp"></span> °C</td>
+            <td class="bold">Peso:</td>
+            <td class="text-right"><span id="lbl-peso"></span> kg</td>
+        </tr>
+        <tr>
+            <td class="bold">F.Cardiaca:</td>
+            <td><span id="lbl-fc"></span> rpm.</td>
+            <td class="bold">F.Respiratoria:</td>
+            <td class="text-right"><span id="lbl-fr"></span> rpm.</td>
+        </tr>
+        <tr>
+            <td colspan="2"></td>
+            <td class="bold">IMC:</td>
+            <td class="text-right bold" id="lbl-imc"></td>
+        </tr>
+    </table>
+
+    <!-- CUADRO 3: Antecedentes -->
+    <table class="box-table">
+        <tr>
+            <th colspan="2" style="text-align: left; background: #fff;" class="bold">Antecedentes Personales</th>
+        </tr>
+        <tr>
+            <td class="bold" style="width: 18%; padding-left: 8px;">Quirúrgico:</td>
+            <td id="lbl-quirurgico">NO REFIERE</td>
+        </tr>
+        <tr>
+            <td class="bold" style="padding-left: 8px;">Patológico:</td>
+            <td id="lbl-patologico">NO REFIERE</td>
+        </tr>
+        <tr>
+            <td class="bold" style="padding-left: 8px;">Alergias:</td>
+            <td id="lbl-alergias">NO REFIERE</td>
+        </tr>
+        <tr>
+            <td class="bold" style="padding-left: 8px;">Obstetricos:</td>
+            <td id="lbl-obstetricos">NO REFIERE</td>
+        </tr>
+        <tr>
+            <td class="bold" style="padding-left: 8px;">Otros:</td>
+            <td id="lbl-otros">NO REFIERE</td>
+        </tr>
+        <tr>
+            <td class="bold" style="padding-left: 8px;">Ant.Familiares:</td>
+            <td id="lbl-familiares">NO REFIERE</td>
+        </tr>
+    </table>
+
+    <!-- CUADRO 4: Evolución, Receta, Órdenes y Procedimientos -->
+    <table class="box-table">
+        <tr>
+            <td class="bold" style="width: 18%;">Motivo de Consulta</td>
+            <td id="lbl-motivo"></td>
+        </tr>
+        <tr>
+            <td class="bold">Exámen Clínico</td>
+            <td id="lbl-examen" style="white-space: pre-line;"></td>
+        </tr>
+        <tr>
+            <td class="bold">Diagnóstico CIE 10</td>
+            <td id="lbl-cie10"></td>
+        </tr>
+        <tr>
+            <td class="bold">Tratamiento</td>
+            <td>
+                <div>..</div>
+                <div class="linea-puntos"></div>
+                <div class="bold" id="lbl-sub-receta-far"></div>
+                <div class="linea-puntos"></div>
+                <div id="lbl-items-tratamiento"></div>
+            </td>
+        </tr>
+        <tr>
+            <td class="bold">Ord.Médicas</td>
+            <td>
+                <div>..</div>
+                <div class="linea-puntos"></div>
+                <div class="bold" id="lbl-sub-receta-rx"></div>
+                <div class="linea-puntos"></div>
+                <div id="lbl-items-ordenes"></div>
+            </td>
+        </tr>
+        <tr>
+            <td class="bold">Procedimientos</td>
+            <td id="lbl-procedimientos"></td>
+        </tr>
+        <tr>
+            <td class="bold">Otros Procedimientos</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td class="bold">Interconsultas</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td class="bold">Observaciones</td>
+            <td id="lbl-observaciones"></td>
+        </tr>
+    </table>
+
+    <script src="js/hoja_atencion_odonto.js"></script>
+</body>
+</html>

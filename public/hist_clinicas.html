@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>SIGH - Actualizar Historias Clínicas</title>
+    <!-- Tailwind local de banco_sangre -->
+    <link rel="stylesheet" href="/banco_sangre/public/css/tailwind.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        .header-correccion { background: linear-gradient(45deg, #d93025, #b71c1c); }
+    </style>
+</head>
+
+<body class="flex min-h-screen bg-gray-100 overflow-x-hidden">
+    <!-- Sidebar inyectado dinámicamente -->
+    <div id="sidebar-container" class="flex-shrink-0 flex self-stretch"></div>
+
+    <!-- Contenedor Principal -->
+    <div class="flex-1 flex flex-col min-w-0 min-h-screen">
+        <!-- Header -->
+        <header class="header-correccion text-white p-6 shadow-md rounded-b-2xl mb-8">
+            <div class="container-fluid">
+                <span class="inline-block bg-white bg-opacity-20 px-3 py-1 rounded-full text-xs font-extrabold tracking-wide mb-2 uppercase">SISTEMA DE TICKETS DE EMERGENCIA V. 2.0</span>
+                <h1 class="text-2xl md:text-3xl font-black flex items-center gap-2">
+                    <i class="bi bi-person-badge"></i> CORRECCIÓN DE HISTORIAS CLÍNICAS
+                </h1>
+                <p class="text-xs text-red-100 opacity-90 mt-1">Resumen Operativo | <i class="bi bi-clock"></i> SIGH Go Backend</p>
+            </div>
+        </header>
+
+        <!-- Tarjeta Central del Buscador -->
+        <main class="flex-1 px-6 flex items-center justify-center mb-10">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 md:p-12 w-full max-w-2xl text-center">
+                <div class="inline-flex items-center justify-center p-4 bg-red-50 rounded-full mb-4">
+                    <i class="bi bi-search text-red-600 text-5xl"></i>
+                </div>
+                
+                <h3 class="text-xl font-bold text-gray-800">Buscador de Pacientes</h3>
+                <p class="text-xs text-gray-500 mt-1 mb-6">
+                    Ingrese el DNI para localizar al paciente y actualizar su número de historia clínica en las tablas sincronizadas.
+                </p>
+
+                <div class="flex flex-col sm:flex-row gap-2 max-w-lg mx-auto">
+                    <input type="text" id="dni_busqueda" maxlength="12" placeholder="DNI del paciente..." class="flex-1 bg-gray-50 border-2 border-gray-300 focus:border-red-600 focus:bg-white rounded-xl px-4 py-3 text-sm outline-none transition font-semibold">
+                    <button type="button" onclick="buscarPaciente()" class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-sm transition shadow flex items-center justify-center gap-2 cursor-pointer">
+                        <i class="bi bi-search"></i>
+                        <span>BUSCAR</span>
+                    </button>
+                </div>
+
+                <!-- Indicador de Carga -->
+                <div id="loading" class="hidden mt-4 text-xs font-semibold text-gray-500 flex items-center justify-center gap-2">
+                    <i class="bi bi-arrow-repeat animate-spin text-red-600 text-lg"></i>
+                    <span>Buscando paciente en SQL Server...</span>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-gray-900 text-gray-400 text-center py-4 text-xs border-t border-gray-800 mt-auto">
+            <div class="container" id="l-f">
+                Desarrollado por: Ing. Anhgelo Smith Vega Poma<br>
+                Unidad de Estadística e Informática - Data Center | &copy; 2026 Hospital Regional Daniel Alcides Carrión
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modal Tailwind de Actualización -->
+    <div id="modalActualizar" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-fade-in">
+            <!-- Header Modal -->
+            <div class="bg-gray-900 text-white px-6 py-4 flex justify-between items-center">
+                <h5 class="font-bold text-sm tracking-wide">Actualizar Datos de HC</h5>
+                <button type="button" onclick="cerrarModal()" class="text-gray-400 hover:text-white text-lg">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <!-- Body Modal -->
+            <div class="p-6">
+                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl mb-4 border border-gray-200">
+                    <i class="bi bi-person-circle text-red-600 text-3xl"></i>
+                    <div class="text-left overflow-hidden">
+                        <h6 id="nombre_paciente" class="font-bold text-xs text-gray-900 truncate uppercase">-</h6>
+                        <span class="text-[10px] text-gray-500 font-semibold">ID Sistema: <span id="id_sistema">-</span></span>
+                    </div>
+                </div>
+
+                <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 text-xs p-3 rounded-xl mb-4 font-medium flex items-center gap-2">
+                    <i class="bi bi-info-circle-fill text-yellow-600 text-base"></i>
+                    <div>
+                        <strong>HC ACTUAL:</strong> <span id="hc_actual" class="font-bold"></span>
+                    </div>
+                </div>
+
+                <div class="mb-2 text-left">
+                    <label class="block text-[10px] font-bold text-gray-600 uppercase mb-1">Nuevo Número de Historia Clínica:</label>
+                    <input type="text" id="nuevo_hc" placeholder="Ingrese nuevo número..." class="w-full border-2 border-gray-300 focus:border-red-600 rounded-xl px-3 py-2 text-sm outline-none font-bold">
+                    <input type="hidden" id="modal_id_paciente">
+                </div>
+            </div>
+
+            <!-- Footer Modal -->
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-2">
+                <button type="button" onclick="cerrarModal()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-xl text-xs transition">
+                    CANCELAR
+                </button>
+                <button type="button" onclick="procesarUpdate()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs shadow transition cursor-pointer">
+                    ACTUALIZAR
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SweetAlert2 local de banco_sangre -->
+    <script src="/banco_sangre/public/js/sweetalert2.all.min.js"></script>
+    <script src="js/layout.js"></script>
+    <script src="js/hist_clinicas.js"></script>
+</body>
+</html>

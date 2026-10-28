@@ -1,6 +1,7 @@
+# Asegurar que se ignoren archivos sensibles y binarios
+cat << 'EOF' >> .gitignore
+.env
 emergencia_api
 *.exe
-*.out
-.env
-*.log
-.vscode/
+EOF
+.readme

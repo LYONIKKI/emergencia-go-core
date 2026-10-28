@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>SIGH - Dashboard Estratégico V. 2.0</title>
+    <!-- Tailwind local de banco_sangre -->
+    <link rel="stylesheet" href="/banco_sangre/public/css/tailwind.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body { background-color: #f4f6f9; font-size: 1rem; min-height: 100vh; margin: 0; }
+        .header-dashboard { background: linear-gradient(45deg, #d93025, #b71c1c); color: white; padding: 30px; border-radius: 0 0 20px 20px; margin-bottom: 20px; }
+        .card-stats { border: none; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .version-badge { background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
+        .icon-shape { width: 48px; height: 48px; background-color: rgba(217, 48, 37, 0.1); color: #d93025; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .filter-bar { background: white; padding: 15px; border-radius: 15px; margin: 0 25px 25px 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    </style>
+</head>
+
+<body class="flex min-h-screen bg-gray-100 overflow-x-hidden">
+    <!-- Contenedor del Sidebar fijado a toda la altura -->
+    <div id="sidebar-container" class="flex-shrink-0 flex self-stretch"></div>
+
+    <!-- Contenido Principal -->
+    <div class="flex-1 flex flex-col min-w-0 min-h-screen">
+        <header class="header-dashboard shadow">
+            <div class="container-fluid">
+                <span class="version-badge mb-2 d-inline-block">SISTEMA DE TICKETS DE EMERGENCIA V. 2.0</span>
+                <h1 class="display-6 fw-bold mb-1"><i class="bi bi-graph-up-arrow"></i> ESTADÍSTICAS DE EMERGENCIA</h1>
+                <p class="m-0 opacity-75">Resumen Operativo | <i class="bi bi-clock"></i> SIGH Go Backend</p>
+            </div>
+        </header>
+
+        <div class="filter-bar flex items-center gap-3">
+            <i class="bi bi-filter-left fs-4 text-danger"></i>
+            <span class="fw-bold text-secondary">SELECCIONAR MES:</span>
+            <div>
+                <select id="selectMes" class="form-select border-danger"></select>
+            </div>
+        </div>
+
+        <main class="container-fluid px-4 mb-5 flex-1">
+            <div class="row g-4 mb-4">
+                <div class="col-md-4">
+                    <div class="card card-stats p-3 bg-white h-100">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <small class="text-muted fw-bold text-uppercase">Pacientes (<span class="nombre-mes-label"></span>)</small>
+                                <h2 class="m-0 fw-bold mt-1" id="kpiTotalMes">0</h2>
+                            </div>
+                            <div class="icon-shape"><i class="bi bi-people-fill"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card card-stats p-3 bg-white h-100">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div style="max-width: 75%;">
+                                <small class="text-muted fw-bold text-uppercase">Tópico Crítico (<span class="nombre-mes-label"></span>)</small>
+                                <h5 class="m-0 fw-bold mt-1 text-truncate" id="kpiTopMesServicio">Cargando...</h5>
+                                <small class="text-danger fw-bold" id="kpiTopMesTotal">0 Atenciones</small>
+                            </div>
+                            <div class="icon-shape" style="background-color: rgba(13, 110, 253, 0.1); color: #0d6efd;"><i class="bi bi-hospital"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card card-stats p-3 bg-white h-100">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <small class="text-muted fw-bold text-uppercase">Ingresos Totales Hoy</small>
+                                <h2 class="m-0 fw-bold mt-1 text-success" id="kpiHoyTotal">0</h2>
+                                <small class="text-muted" id="kpiTopHoy">Top hoy: Cargando...</small>
+                            </div>
+                            <div class="icon-shape" style="background-color: rgba(25, 135, 84, 0.1); color: #198754;"><i class="bi bi-calendar-check"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="card shadow-sm border-0 p-4 rounded-4 bg-white">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="fw-bold m-0"><i class="bi bi-activity text-danger"></i> Atenciones en <span class="nombre-mes-label"></span></h5>
+                            <span class="badge bg-light text-dark border">Histórico Mensual</span>
+                        </div>
+                        <div style="position: relative; height: 380px;">
+                            <canvas id="graficaAtenciones"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer estilizado sin espacios libres -->
+        <footer class="bg-gray-900 text-gray-400 text-center py-4 text-xs border-t border-gray-800 mt-auto">
+            <div class="container" id="l-f">
+                Desarrollado por: Ing. Anhgelo Smith Vega Poma<br>
+                Unidad de Estadística e Informática - Data Center | &copy; 2026
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/layout.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

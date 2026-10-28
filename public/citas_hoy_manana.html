@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>SIGH V. 2.0 | Historias Consulta Externa</title>
+    <link rel="stylesheet" href="/banco_sangre/public/css/tailwind.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        .header-rojo { background: linear-gradient(45deg, #d93025, #b71c1c); }
+    </style>
+</head>
+
+<body class="flex min-h-screen bg-gray-100 overflow-x-hidden">
+    <div id="sidebar-container" class="flex-shrink-0 flex self-stretch"></div>
+
+    <div class="flex-1 flex flex-col min-w-0 min-h-screen">
+        <header class="header-rojo text-white p-6 shadow-md rounded-b-2xl mb-6">
+            <div class="container-fluid flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <span class="inline-block bg-white bg-opacity-20 px-3 py-1 rounded-full text-xs font-extrabold tracking-wide mb-2 uppercase">SISTEMA DE HISTORIAS DE CONSULTA EXTERNA V. 2.0</span>
+                    <h1 class="text-2xl md:text-3xl font-black flex items-center gap-2">
+                        <i class="bi bi-folder-symlink"></i> PRE-DESPACHO Y CUSTODIA DE EXPEDIENTES
+                    </h1>
+                    <p class="text-xs text-red-100 opacity-90 mt-1">Control de Salidas y Devoluciones de Archivo Central | SIGH Go</p>
+                </div>
+                <div>
+                    <span id="contador-citas" class="bg-white text-red-700 font-extrabold px-4 py-2 rounded-xl text-sm shadow">
+                        0 Expedientes
+                    </span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Selector de Pestañas y Acciones de Archivo -->
+        <div class="px-6 mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <button id="tab-hoy" class="flex items-center gap-2 px-5 py-2.5 text-xs font-bold rounded-xl bg-red-600 text-white shadow transition">
+                    <i class="bi bi-calendar-check"></i> Citas Programadas para Hoy
+                </button>
+                <button id="tab-manana" class="flex items-center gap-2 px-5 py-2.5 text-xs font-semibold rounded-xl bg-white text-gray-700 hover:bg-gray-100 border border-gray-200 transition cursor-pointer">
+                    <i class="bi bi-calendar-plus"></i> Pre-despacho para Mañana
+                </button>
+            </div>
+
+            <!-- Botones de Impresión para Archivo Central -->
+            <div class="flex items-center gap-2">
+                <button onclick="imprimirPlanillaDespacho('hoy')" class="flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-xl bg-gray-900 text-white hover:bg-gray-800 shadow transition">
+                    <i class="bi bi-printer text-red-400"></i> Imprimir Guía Hoy (Dígito Terminal)
+                </button>
+                <button onclick="imprimirPlanillaDespacho('manana')" class="flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-xl bg-white text-gray-800 border border-gray-300 hover:bg-gray-100 shadow-sm transition">
+                    <i class="bi bi-file-earmark-text text-blue-600"></i> Imprimir Guía Mañana
+                </button>
+            </div>
+        </div>
+
+        <!-- Filtro y Selector de Filas -->
+        <div class="px-6 mb-4">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 flex flex-col md:flex-row items-center justify-between gap-3 text-xs">
+                <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                    <!-- Selector de Cantidad de Filas -->
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-gray-500 uppercase tracking-wider">Mostrar:</span>
+                        <select id="select-filas" class="bg-gray-50 border border-gray-300 rounded-lg px-2.5 py-1.5 font-bold text-gray-700 outline-none focus:ring-2 focus:ring-red-500">
+                            <option value="10" selected>10 registros</option>
+                            <option value="25">25 registros</option>
+                            <option value="50">50 registros</option>
+                            <option value="100">100 registros</option>
+                        </select>
+                    </div>
+
+                    <!-- Nuevo Filtro Directo por Consultorio / Servicio CE -->
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-gray-500 uppercase tracking-wider">Consultorio:</span>
+                        <select id="select-servicio-filtro" class="bg-gray-50 border-2 border-red-500 rounded-lg px-3 py-1.5 font-bold text-gray-800 outline-none focus:ring-2 focus:ring-red-500 min-w-[220px]">
+                            <option value="">-- Todos los Servicios --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Buscador General -->
+                <div class="w-full md:w-80">
+                    <input type="text" id="input-busqueda" placeholder="Buscar por paciente, DNI, H.C., servicio o médico..." class="w-full bg-gray-50 border border-gray-300 focus:border-red-500 focus:bg-white rounded-lg px-3 py-2 text-xs outline-none transition">
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla -->
+        <main class="px-6 mb-6 flex-1">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-900 text-white text-[11px] font-bold uppercase tracking-wider text-center">
+                                <th class="p-3 w-28 cursor-pointer select-none hover:bg-gray-800 transition" onclick="ordenarPor('hora_cita')" title="Ordenar por Hora">
+                                    <div class="flex items-center justify-center gap-1.5">
+                                        <span>HORA CITA</span>
+                                        <i id="sort-hora_cita" class="bi bi-arrow-down-up text-xs text-gray-400"></i>
+                                    </div>
+                                </th>
+                                <th class="p-3 text-left cursor-pointer select-none hover:bg-gray-800 transition" onclick="ordenarPor('paciente')" title="Ordenar por Paciente">
+                                    <div class="flex items-center gap-1.5">
+                                        <span>PACIENTE</span>
+                                        <i id="sort-paciente" class="bi bi-arrow-down-up text-xs text-gray-400"></i>
+                                    </div>
+                                </th>
+                                <th class="p-3 w-28 cursor-pointer select-none hover:bg-gray-800 transition" onclick="ordenarPor('dni')" title="Ordenar por DNI">
+                                    <div class="flex items-center justify-center gap-1.5">
+                                        <span>DNI</span>
+                                        <i id="sort-dni" class="bi bi-arrow-down-up text-xs text-gray-400"></i>
+                                    </div>
+                                </th>
+                                <th class="p-3 w-28 cursor-pointer select-none hover:bg-gray-800 transition" onclick="ordenarPor('nro_historia_clinica')" title="Ordenar por H.C.">
+                                    <div class="flex items-center justify-center gap-1.5">
+                                        <span>H.C.</span>
+                                        <i id="sort-nro_historia_clinica" class="bi bi-arrow-down-up text-xs text-gray-400"></i>
+                                    </div>
+                                </th>
+                                <th class="p-3 w-32 cursor-pointer select-none hover:bg-gray-800 transition" onclick="ordenarPor('seguro')" title="Ordenar por Seguro">
+                                    <div class="flex items-center justify-center gap-1.5">
+                                        <span>SEGURO</span>
+                                        <i id="sort-seguro" class="bi bi-arrow-down-up text-xs text-gray-400"></i>
+                                    </div>
+                                </th>
+                                <th class="p-3 text-left w-52 cursor-pointer select-none hover:bg-gray-800 transition" onclick="ordenarPor('servicio')" title="Ordenar por Servicio">
+                                    <div class="flex items-center gap-1.5">
+                                        <span>SERVICIO DESTINO</span>
+                                        <i id="sort-servicio" class="bi bi-arrow-down-up text-xs text-gray-400"></i>
+                                    </div>
+                                </th>
+                                <th class="p-3 text-left w-56 cursor-pointer select-none hover:bg-gray-800 transition" onclick="ordenarPor('medico')" title="Ordenar por Médico">
+                                    <div class="flex items-center gap-1.5">
+                                        <span>MÉDICO RESPONSABLE</span>
+                                        <i id="sort-medico" class="bi bi-arrow-down-up text-xs text-gray-400"></i>
+                                    </div>
+                                </th>
+                                <th class="p-3 w-36 text-center">ACCIONES</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaBody" class="divide-y divide-gray-100">
+                            <tr>
+                                <td colspan="8" class="p-6 text-center text-gray-400 text-xs">
+                                    <i class="bi bi-arrow-repeat animate-spin mr-2"></i> Consultando citas programadas...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Barra de Paginación -->
+                <div class="p-4 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                    <div class="text-gray-500 font-medium">
+                        Mostrando <span id="pag-desde" class="font-bold text-gray-700">0</span> a <span id="pag-hasta" class="font-bold text-gray-700">0</span> de <span id="pag-total" class="font-bold text-gray-700">0</span> expedientes
+                    </div>
+                    <div class="flex items-center space-x-1" id="contenedor-paginacion"></div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="bg-gray-900 text-gray-400 text-center py-4 text-xs border-t border-gray-800 mt-auto">
+            <div class="container" id="l-f">
+                Desarrollado por: Ing. Anhgelo Smith Vega Poma<br>
+                Unidad de Estadística e Informática - Data Center | &copy; 2026 Hospital Regional Daniel Alcides Carrión
+            </div>
+        </footer>
+    </div>
+
+    <!-- MODAL 1: REGISTRAR SALIDA DE HISTORIA -->
+    <div id="modalSalida" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden">
+            <div class="bg-red-700 text-white px-6 py-4 flex justify-between items-center">
+                <h5 class="font-bold text-sm flex items-center gap-2"><i class="bi bi-box-arrow-up-right"></i> Registrar Salida de Historia</h5>
+                <button onclick="cerrarModal('modalSalida')" class="text-white hover:text-gray-200"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="p-6 space-y-3 text-xs">
+                <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 space-y-1">
+                    <p class="font-bold text-gray-800 text-sm" id="s_paciente">-</p>
+                    <p class="text-gray-600">H.C.: <span id="s_hc" class="font-bold text-red-600"></span> | DNI: <span id="s_dni" class="font-bold"></span></p>
+                    <p class="text-gray-600">Servicio Destino: <span id="s_servicio" class="font-bold text-blue-700"></span></p>
+                </div>
+                <div>
+                    <label class="block font-bold text-gray-700 uppercase mb-1">Personal que Recoge el Expediente (*):</label>
+                    <input type="text" id="s_quien_recoge" placeholder="Nombre completo o cargo de quien recoge..." class="w-full border-2 border-gray-300 focus:border-red-600 rounded-xl px-3 py-2 text-xs font-semibold outline-none">
+                </div>
+                <div>
+                    <label class="block font-bold text-gray-700 uppercase mb-1">Observaciones (Opcional):</label>
+                    <input type="text" id="s_obs" placeholder="Ej: Atención prioritaria, interconsulta..." class="w-full border border-gray-300 rounded-xl px-3 py-2 text-xs outline-none">
+                </div>
+                <input type="hidden" id="s_nro_cuenta">
+            </div>
+            <div class="px-6 py-4 bg-gray-50 border-t flex justify-end gap-2 text-xs">
+                <button onclick="cerrarModal('modalSalida')" class="px-4 py-2 bg-gray-200 font-bold rounded-xl text-gray-700">CANCELAR</button>
+                <button onclick="procesarSalida()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow">CONFIRMAR SALIDA</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: REGISTRAR DEVOLUCIÓN -->
+    <div id="modalDevolucion" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden">
+            <div class="bg-emerald-700 text-white px-6 py-4 flex justify-between items-center">
+                <h5 class="font-bold text-sm flex items-center gap-2"><i class="bi bi-box-arrow-in-down-left"></i> Registrar Devolución al Archivo</h5>
+                <button onclick="cerrarModal('modalDevolucion')" class="text-white hover:text-gray-200"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="p-6 space-y-3 text-xs">
+                <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 space-y-1">
+                    <p class="font-bold text-gray-800 text-sm" id="d_paciente">-</p>
+                    <p class="text-gray-600">H.C.: <span id="d_hc" class="font-bold text-emerald-700"></span></p>
+                    <p class="text-gray-600">Última Salida: <span id="d_salida_info" class="font-semibold text-gray-800"></span></p>
+                </div>
+                <div>
+                    <label class="block font-bold text-gray-700 uppercase mb-1">Personal que Devuelve (*):</label>
+                    <input type="text" id="d_quien_devuelve" placeholder="Nombre de quien entrega la historia..." class="w-full border-2 border-gray-300 focus:border-emerald-600 rounded-xl px-3 py-2 text-xs font-semibold outline-none">
+                </div>
+                <div>
+                    <label class="block font-bold text-gray-700 uppercase mb-1">Ubicación Física en Archivo (*):</label>
+                    <input type="text" id="d_ubicacion" placeholder="Ej: Estante 4 - Balda B - Paquete 15" class="w-full border-2 border-gray-300 focus:border-emerald-600 rounded-xl px-3 py-2 text-xs font-bold text-emerald-900 outline-none">
+                </div>
+                <div>
+                    <label class="block font-bold text-gray-700 uppercase mb-1">Observaciones:</label>
+                    <input type="text" id="d_obs" placeholder="Estado del expediente físico, folios..." class="w-full border border-gray-300 rounded-xl px-3 py-2 text-xs outline-none">
+                </div>
+                <input type="hidden" id="d_id_movimiento">
+            </div>
+            <div class="px-6 py-4 bg-gray-50 border-t flex justify-end gap-2 text-xs">
+                <button onclick="cerrarModal('modalDevolucion')" class="px-4 py-2 bg-gray-200 font-bold rounded-xl text-gray-700">CANCELAR</button>
+                <button onclick="procesarDevolucion()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow">GUARDAR RETORNO</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: HISTORIAL / TRAZABILIDAD (OJITO) -->
+    <div id="modalHistorial" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-gray-900 text-white px-6 py-4 flex justify-between items-center">
+                <h5 class="font-bold text-sm flex items-center gap-2"><i class="bi bi-clock-history text-red-500"></i> Historial de Movimientos de Historia Clínica</h5>
+                <button onclick="cerrarModal('modalHistorial')" class="text-white hover:text-gray-300"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="p-6 overflow-y-auto flex-1 text-xs">
+                <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 mb-4">
+                    <p class="text-sm font-bold text-gray-900" id="h_paciente">-</p>
+                    <p class="text-gray-600">H.C.: <span id="h_hc" class="font-bold text-red-600"></span> | DNI: <span id="h_dni" class="font-bold"></span></p>
+                </div>
+                <div class="space-y-3" id="timelineMovimientos">
+                    <!-- Dinámico -->
+                </div>
+            </div>
+            <div class="px-6 py-3 bg-gray-50 border-t flex justify-end">
+                <button onclick="cerrarModal('modalHistorial')" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 font-bold rounded-xl text-xs text-gray-700">CERRAR</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/banco_sangre/public/js/sweetalert2.all.min.js"></script>
+    <script src="js/layout.js"></script>
+    <script src="js/citas.js"></script>
+    <script src="js/despacho_custom.js"></script>
+    <script src="js/filtro_servicios_cupos.js"></script>
+</body>
+</html>

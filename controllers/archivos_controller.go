@@ -2,7 +2,9 @@ package controllers
 
 import (
 	"database/sql"
+	"fmt"
 	"strings"
+	"time"
 
 	"emergencia_go/config"
 
@@ -18,6 +20,36 @@ type PacienteHCResponse struct {
 type UpdateHCRequest struct {
 	IdPaciente int    `json:"id_paciente"`
 	NuevoHC    string `json:"nuevo_hc"`
+}
+
+func obtenerSiguienteDiaAtencion(fechaBase time.Time) time.Time {
+	siguiente := fechaBase.AddDate(0, 0, 1)
+
+	// Lista editable de feriados del año (Formato: "MM-DD")
+	feriados := map[string]bool{
+		"01-01": true, // Año Nuevo
+		"04-02": true, // Jueves Santo (ejemplo)
+		"04-03": true, // Viernes Santo
+		"05-01": true, // Día del Trabajo
+		"06-07": true, // Batalla de Arica
+		"06-29": true, // San Pedro y San Pablo
+		"07-28": true, // Fiestas Patrias
+		"07-29": true, // Fiestas Patrias
+		"08-06": true, // Batalla de Junín
+		"08-30": true, // Santa Rosa de Lima
+		"10-08": true, // Combate de Angamos (Mañana 8 de Octubre)
+		"11-01": true, // Todos los Santos
+		"12-08": true, // Inmaculada Concepción
+		"12-09": true, // Batalla de Ayacucho
+		"12-25": true, // Navidad
+	}
+
+	// Mientras el día siguiente sea DOMINGO (0) o sea FERIADO, sigue sumando 1 día
+	for siguiente.Weekday() == time.Sunday || feriados[siguiente.Format("01-02")] {
+		siguiente = siguiente.AddDate(0, 0, 1)
+	}
+
+	return siguiente
 }
 
 // GET /api/archivos/paciente/:dni
@@ -106,24 +138,23 @@ type CitaResponse struct {
 }
 
 // GET /api/archivos/citas-ce?tipo=hoy (o tipo=manana)
+// GET /api/archivos/citas-ce?tipo=hoy (o tipo=manana)
 func GetCitasHoyManana(c *fiber.Ctx) error {
 	db := config.DBSQLServer
 	tipo := strings.ToLower(c.Query("tipo", "hoy"))
 
-	var whereDate string
+	var fechaFiltro string
+	ahora := time.Now()
+
 	if tipo == "manana" {
-		whereDate = `CAST(c.Fecha AS DATE) = CAST(
-			DATEADD(
-				day, 
-				CASE 
-					WHEN DATENAME(WEEKDAY, GETDATE()) IN ('Saturday', 'Sábado') THEN 2
-					ELSE 1
-				END, 
-				GETDATE()
-			) AS DATE)`
+		// Calcula dinámicamente la fecha saltando feriados y domingos
+		siguienteFecha := obtenerSiguienteDiaAtencion(ahora)
+		fechaFiltro = siguienteFecha.Format("2006-01-02")
 	} else {
-		whereDate = `CAST(c.Fecha AS DATE) = CAST(GETDATE() AS DATE)`
+		fechaFiltro = ahora.Format("2006-01-02")
 	}
+
+	whereDate := fmt.Sprintf("CAST(c.Fecha AS DATE) = '%s'", fechaFiltro)
 
 	query := `SELECT 
 	            ISNULL(CONVERT(VARCHAR(10), c.FechaSolicitud, 103), '') AS FechaSolicitud,

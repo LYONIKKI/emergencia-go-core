@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>SIGH - Historial de Atenciones</title>
+    <!-- Tailwind local de banco_sangre -->
+    <link rel="stylesheet" href="/banco_sangre/public/css/tailwind.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        .header-historial { background: linear-gradient(45deg, #1a237e, #0d47a1); }
+    </style>
+</head>
+
+<body class="flex min-h-screen bg-gray-100 overflow-x-hidden">
+    <!-- Sidebar inyectado dinámicamente -->
+    <div id="sidebar-container" class="flex-shrink-0 flex self-stretch"></div>
+
+    <!-- Contenedor Principal -->
+    <div class="flex-1 flex flex-col min-w-0 min-h-screen">
+        <!-- Header -->
+        <header class="header-historial text-white p-6 shadow-md rounded-b-2xl mb-6">
+            <div class="container-fluid flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <span class="inline-block bg-white bg-opacity-20 px-3 py-1 rounded-full text-xs font-extrabold tracking-wide mb-2">SISTEMA DE TICKETS DE EMERGENCIA V. 2.0</span>
+                    <h1 class="text-2xl md:text-3xl font-black flex items-center gap-2">
+                        <i class="bi bi-calendar3 text-white"></i> HISTORIAL DE ATENCIONES
+                    </h1>
+                    <p class="text-xs text-blue-100 opacity-90 mt-1">Registros acumulados del Hospital Carrión</p>
+                </div>
+                <!-- Filtro de Rango Rápido -->
+                <div class="flex items-center gap-2 bg-blue-950 bg-opacity-60 p-1.5 rounded-xl border border-blue-800">
+                    <button id="btn-este-mes" class="px-4 py-2 text-xs font-bold rounded-lg bg-white text-blue-900 shadow transition">
+                        Este Mes
+                    </button>
+                    <button id="btn-mes-anterior" class="px-4 py-2 text-xs font-semibold rounded-lg bg-blue-800 bg-opacity-40 text-blue-100 hover:bg-white hover:text-blue-900 transition">
+                        Hace 1 Mes
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Filtro y Selector de Filas -->
+        <div class="px-6 mb-4">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <span class="font-bold text-gray-500 uppercase tracking-wider">Mostrar:</span>
+                    <select id="select-filas" class="bg-gray-50 border border-gray-300 rounded-lg px-2.5 py-1.5 font-bold text-gray-700 outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="10" selected>10 registros</option>
+                        <option value="25">25 registros</option>
+                        <option value="50">50 registros</option>
+                        <option value="100">100 registros</option>
+                    </select>
+                </div>
+                <div class="w-full sm:w-80">
+                    <input type="text" id="input-busqueda" placeholder="Buscar por paciente, DNI, fecha o servicio..." class="w-full bg-gray-50 border border-gray-300 focus:border-blue-500 focus:bg-white rounded-lg px-3 py-2 text-xs outline-none transition">
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla del Historial -->
+        <main class="px-6 mb-6 flex-1">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-900 text-white text-[11px] font-bold uppercase tracking-wider text-center">
+                                <th class="p-3 w-28">Fecha</th>
+                                <th class="p-3 w-24">Hora</th>
+                                <th class="p-3 text-left">Paciente</th>
+                                <th class="p-3 w-28">DNI</th>
+                                <th class="p-3 w-36">Seguro</th>
+                                <th class="p-3 text-left">Servicio</th>
+                                <th class="p-3 w-20">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaBody" class="divide-y divide-gray-100">
+                            <tr>
+                                <td colspan="7" class="p-6 text-center text-gray-400 text-xs">
+                                    <i class="bi bi-arrow-repeat animate-spin mr-2"></i> Consultando registros acumulados...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Barra de Paginación -->
+                <div class="p-4 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                    <div class="text-gray-500 font-medium">
+                        Mostrando <span id="pag-desde" class="font-bold text-gray-700">0</span> a <span id="pag-hasta" class="font-bold text-gray-700">0</span> de <span id="pag-total" class="font-bold text-gray-700">0</span> atenciones registradas
+                    </div>
+                    <div class="flex items-center space-x-1" id="contenedor-paginacion"></div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-gray-900 text-gray-400 text-center py-4 text-xs border-t border-gray-800 mt-auto">
+            <div class="container" id="l-f">
+                Desarrollado por: Ing. Anhgelo Smith Vega Poma[cite: 12]<br>
+                Unidad de Estadística e Informática - Data Center | &copy; 2026 Hospital Regional Daniel Alcides Carrión
+            </div>
+        </footer>
+    </div>
+
+    <script src="js/layout.js"></script>
+    <script src="js/relases.js"></script>
+</body>
+</html>

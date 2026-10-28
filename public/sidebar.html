@@ -1,0 +1,99 @@
+<aside class="w-64 min-w-[16rem] bg-gray-900 text-gray-300 flex flex-col h-full shadow-2xl z-50 select-none border-r border-gray-800">
+    <!-- Header -->
+    <div class="p-6 text-center border-b border-gray-800">
+        <div class="inline-flex items-center justify-center p-3 bg-red-900 bg-opacity-30 rounded-2xl mb-3 border border-red-800">
+            <i class="bi bi-activity text-red-500 text-3xl"></i>
+        </div>
+        <h5 class="text-base font-extrabold uppercase tracking-wider text-white">SIGH V. 2.0</h5>
+        <p class="text-xs text-gray-400 font-medium tracking-tight">Data Center - UEI</p>
+    </div>
+
+    <!-- Navegación -->
+    <div class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        
+        <!-- SECCIÓN ODONTOLOGÍA (Para 'odonto' y 'go_admin_emg') -->
+        <div id="bloque-odontologia" class="space-y-1">
+            <div class="pt-2 pb-1 px-4">
+                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Consultorio Externo</span>
+            </div>
+            <a href="odontologia_hoy.html" id="nav-odonto" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-gray-300 hover:bg-gray-800 hover:text-white transition duration-200">
+                <i class="bi bi-person-lines-fill text-lg text-blue-400"></i>
+                <span>Odontología Hoy</span>
+            </a>
+        </div>
+
+        <!-- SECCIÓN 1: EMERGENCIA (Para 'go_admin_emg' y 'emergencia_go') -->
+        <div id="bloque-emergencia" class="space-y-1">
+            <a href="dashboard.html" id="nav-dashboard" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-gray-300 hover:bg-gray-800 hover:text-white transition duration-200">
+                <i class="bi bi-speedometer2 text-lg"></i>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="pacientes_hoy.html" id="nav-pacientes" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-gray-300 hover:bg-gray-800 hover:text-white transition duration-200">
+                <i class="bi bi-person-plus text-lg"></i>
+                <span>Ingresos Hoy</span>
+            </a>
+
+            <a href="relases.html" id="nav-relases" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-gray-300 hover:bg-gray-800 hover:text-white transition duration-200">
+                <i class="bi bi-clock-history text-lg"></i>
+                <span>Historial Atenciones</span>
+            </a>
+
+            <div class="relative">
+                <button type="button" onclick="document.getElementById('menuReportes').classList.toggle('hidden')" class="w-full flex items-center justify-between px-4 py-3 text-sm font-medium rounded-xl text-gray-300 hover:bg-gray-800 hover:text-white transition duration-200">
+                    <div class="flex items-center gap-3">
+                        <i class="bi bi-file-earmark-excel text-lg text-emerald-500"></i>
+                        <span>Exportar Reportes</span>
+                    </div>
+                    <i class="bi bi-chevron-down text-xs text-gray-400"></i>
+                </button>
+                <div id="menuReportes" class="hidden pl-8 pr-2 py-1.5 space-y-1 bg-gray-950 rounded-lg mt-1 border border-gray-800">
+                    <a href="http://172.16.10.240:8080/api/reporte/hoy" class="flex items-center gap-2 px-3 py-2 text-xs font-medium text-gray-400 rounded-md hover:text-white hover:bg-gray-800 transition">
+                        <i class="bi bi-calendar-event text-red-400"></i> Reporte de Hoy
+                    </a>
+                    <a href="http://172.16.10.240:8080/api/reporte/ayer" class="flex items-center gap-2 px-3 py-2 text-xs font-medium text-gray-400 rounded-md hover:text-white hover:bg-gray-800 transition">
+                        <i class="bi bi-calendar-minus text-amber-400"></i> Reporte de Ayer
+                    </a>
+                    <div class="border-t border-gray-800 my-1"></div>
+                    <a href="http://172.16.10.240:8080/api/reporte/mes" class="flex items-center gap-2 px-3 py-2 text-xs font-medium text-gray-400 rounded-md hover:text-white hover:bg-gray-800 transition">
+                        <i class="bi bi-calendar-range text-blue-400"></i> Todo el Mes Actual
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 2: SERVICIO EXTERNO (Para 'go_admin_emg' y 'archivos_go') -->
+        <div id="bloque-archivos" class="space-y-1">
+            <div class="pt-4 pb-1 px-4">
+                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Servicio Externo</span>
+            </div>
+            <a href="citas_hoy_manana.html" id="nav-citas" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-gray-300 hover:bg-gray-800 hover:text-white transition duration-200">
+                <i class="bi bi-folder-symlink text-lg text-red-500"></i>
+                <span>Historias C.E.</span>
+            </a>
+            <a href="localizador_hc.html" id="nav-localizador" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-gray-300 hover:bg-gray-800 hover:text-white transition duration-200">
+                <i class="bi bi-geo-alt text-lg text-amber-400"></i>
+                <span>Localizador / Custodia</span>
+            </a>
+        </div>
+
+        <!-- SECCIÓN 3: ADMINISTRACIÓN -->
+        <div id="bloque-admin" class="space-y-1">
+            <div class="pt-4 pb-1 px-4">
+                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Administración</span>
+            </div>
+            <a href="hist_clinicas.html" id="nav-hist-clinicas" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-gray-300 hover:bg-gray-800 hover:text-white transition duration-200">
+                <i class="bi bi-person-badge text-lg text-indigo-400"></i>
+                <span>Actualizar Historias Clínicas</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer Logout -->
+    <div class="p-3 border-t border-gray-800 mt-auto">
+        <a href="../logout.php" class="flex items-center justify-center gap-2 w-full px-4 py-2.5 text-xs font-bold text-red-400 bg-red-950 bg-opacity-40 hover:bg-red-600 hover:text-white rounded-xl border border-red-900 border-opacity-50 transition duration-200">
+            <i class="bi bi-box-arrow-right text-base"></i>
+            <span>Cerrar Sesión</span>
+        </a>
+    </div>
+</aside>

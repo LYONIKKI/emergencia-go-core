@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>SIGH - Localizador de Historias Clínicas</title>
+    <!-- Tailwind local de banco_sangre -->
+    <link rel="stylesheet" href="/banco_sangre/public/css/tailwind.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        .header-localizador { background: linear-gradient(45deg, #b45309, #d97706); }
+    </style>
+</head>
+
+<body class="flex min-h-screen bg-gray-100 overflow-x-hidden">
+    <!-- Sidebar inyectado dinámicamente -->
+    <div id="sidebar-container" class="flex-shrink-0 flex self-stretch"></div>
+
+    <!-- Contenedor Principal -->
+    <div class="flex-1 flex flex-col min-w-0 min-h-screen">
+        <header class="header-localizador text-white p-6 shadow-md rounded-b-2xl mb-8">
+            <div class="container-fluid">
+                <span class="inline-block bg-white bg-opacity-20 px-3 py-1 rounded-full text-xs font-extrabold tracking-wide mb-2 uppercase">ARCHIVO CENTRAL | CUSTODIA FÍSICA</span>
+                <h1 class="text-2xl md:text-3xl font-black flex items-center gap-2">
+                    <i class="bi bi-geo-alt"></i> LOCALIZADOR Y TRAZABILIDAD DE HISTORIAS
+                </h1>
+                <p class="text-xs text-amber-100 opacity-90 mt-1">Consulte la ubicación física o el estado de préstamo en tiempo real</p>
+            </div>
+        </header>
+
+        <main class="flex-1 px-6 flex flex-col items-center mb-10">
+            <!-- Tarjeta Buscador -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 w-full max-w-2xl text-center mb-6">
+                <h3 class="text-lg font-bold text-gray-800 mb-2">Búsqueda por DNI o N° de Historia</h3>
+                <div class="flex gap-2 max-w-lg mx-auto">
+                    <input type="text" id="input_termino" placeholder="Ingrese DNI o N° de Historia Clínica..." class="flex-1 bg-gray-50 border-2 border-gray-300 focus:border-amber-600 focus:bg-white rounded-xl px-4 py-3 text-sm font-semibold outline-none transition">
+                    <button type="button" onclick="buscarCustodia()" class="px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl text-sm shadow transition cursor-pointer">
+                        LOCALIZAR
+                    </button>
+                </div>
+            </div>
+
+            <!-- Contenedor de Resultados -->
+            <div id="resultadoCustodia" class="w-full max-w-2xl hidden space-y-4">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                    <div class="flex justify-between items-start mb-4 border-b pb-3">
+                        <div>
+                            <h4 id="res_paciente" class="text-base font-black text-gray-900 uppercase">-</h4>
+                            <p class="text-xs text-gray-500">H.C.: <span id="res_hc" class="font-bold text-red-600"></span> | DNI: <span id="res_dni" class="font-bold"></span></p>
+                        </div>
+                        <div id="res_badge_estado"></div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                        <div class="p-3.5 bg-gray-50 rounded-xl border">
+                            <span class="text-gray-500 font-bold block text-[10px] uppercase mb-1">Ubicación Física en Archivo:</span>
+                            <span id="res_ubicacion" class="text-sm font-extrabold text-emerald-800">-</span>
+                        </div>
+                        <div class="p-3.5 bg-gray-50 rounded-xl border">
+                            <span class="text-gray-500 font-bold block text-[10px] uppercase mb-1">Último Servicio Destino:</span>
+                            <span id="res_servicio" class="text-sm font-bold text-blue-800">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Historial Cronológico -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                    <h5 class="text-xs font-bold text-gray-700 uppercase mb-3"><i class="bi bi-clock-history mr-1 text-amber-600"></i> Trazabilidad Completa</h5>
+                    <div id="listaMovimientosLocalizador" class="space-y-3 text-xs"></div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="bg-gray-900 text-gray-400 text-center py-4 text-xs border-t border-gray-800 mt-auto">
+            <div class="container" id="l-f">
+                Desarrollado por: Ing. Anhgelo Smith Vega Poma<br>
+                Unidad de Estadística e Informática - Data Center | &copy; 2026 Hospital Regional Daniel Alcides Carrión
+            </div>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/banco_sangre/public/js/sweetalert2.all.min.js"></script>
+    <script src="js/layout.js"></script>
+    <script src="js/localizador_hc.js"></script>
+</body>
+</html>

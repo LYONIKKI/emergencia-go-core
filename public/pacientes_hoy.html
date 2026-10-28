@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>SIGH - Ingresos de Hoy</title>
+    <link rel="stylesheet" href="/banco_sangre/public/css/tailwind.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        .header-hoy { background: linear-gradient(45deg, #d93025, #b71c1c); }
+    </style>
+</head>
+
+<body class="flex min-h-screen bg-gray-100 overflow-x-hidden">
+    <!-- Sidebar inyectado -->
+    <div id="sidebar-container" class="flex-shrink-0 flex self-stretch"></div>
+
+    <!-- Contenedor Principal -->
+    <div class="flex-1 flex flex-col min-w-0 min-h-screen">
+        <!-- Header -->
+        <header class="header-hoy text-white p-6 shadow-md rounded-b-2xl mb-6">
+            <div class="container-fluid flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <span class="inline-block bg-white bg-opacity-20 px-3 py-1 rounded-full text-xs font-extrabold tracking-wide mb-2">SISTEMA DE TICKETS DE EMERGENCIA V. 2.0</span>
+                    <h1 class="text-2xl md:text-3xl font-black flex items-center gap-2">
+                        <i class="bi bi-hospital text-white"></i> INGRESOS ACTUALES: <span id="fecha-actual"></span>
+                    </h1>
+                    <p class="text-xs text-red-100 opacity-90 mt-1">Monitoreo en tiempo real | Unidad de Estadística e Informática</p>
+                </div>
+                <div>
+                    <span id="contador-ingresos" class="bg-white text-red-700 font-extrabold px-4 py-2 rounded-xl text-sm shadow">
+                        0 Ingresos
+                    </span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Filtro y Selector de Filas -->
+        <div class="px-6 mb-4">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <span class="font-bold text-gray-500 uppercase tracking-wider">Mostrar:</span>
+                    <select id="select-filas" class="bg-gray-50 border border-gray-300 rounded-lg px-2.5 py-1.5 font-bold text-gray-700 outline-none focus:ring-2 focus:ring-red-500">
+                        <option value="10" selected>10 registros</option>
+                        <option value="25">25 registros</option>
+                        <option value="50">50 registros</option>
+                        <option value="100">100 registros</option>
+                    </select>
+                </div>
+                <div class="w-full sm:w-80">
+                    <input type="text" id="input-busqueda" placeholder="Buscar paciente, DNI, H.C. o servicio..." class="w-full bg-gray-50 border border-gray-300 focus:border-red-500 focus:bg-white rounded-lg px-3 py-2 text-xs outline-none transition">
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de Ingresos -->
+        <main class="px-6 mb-6 flex-1">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-900 text-white text-[11px] font-bold uppercase tracking-wider text-center">
+                                <th class="p-3 w-28">Hora</th>
+                                <th class="p-3 text-left">Paciente</th>
+                                <th class="p-3 w-28">DNI</th>
+                                <th class="p-3 w-28">H.C.</th>
+                                <th class="p-3 w-40">Tipo de Seguro</th>
+                                <th class="p-3 w-48">Servicio</th>
+                                <th class="p-3 text-left w-56">Médico Responsable</th>
+                                <th class="p-3 w-28">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaBody" class="divide-y divide-gray-100">
+                            <tr>
+                                <td colspan="8" class="p-6 text-center text-gray-400 text-xs">
+                                    <i class="bi bi-arrow-repeat animate-spin mr-2"></i> Cargando atenciones de emergencia...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Barra de Paginación -->
+                <div class="p-4 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                    <div class="text-gray-500 font-medium">
+                        Mostrando <span id="pag-desde" class="font-bold text-gray-700">0</span> a <span id="pag-hasta" class="font-bold text-gray-700">0</span> de <span id="pag-total" class="font-bold text-gray-700">0</span> pacientes ingresados
+                    </div>
+                    <div class="flex items-center space-x-1" id="contenedor-paginacion"></div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-gray-900 text-gray-400 text-center py-4 text-xs border-t border-gray-800 mt-auto">
+            <div class="container" id="l-f">
+                Desarrollado por: Ing. Anhgelo Smith Vega Poma<br>
+                Unidad de Estadística e Informática - Data Center | &copy; 2026 Hospital Regional Daniel Alcides Carrión
+            </div>
+        </footer>
+    </div>
+
+    <script src="js/layout.js"></script>
+    <script src="js/pacientes_hoy.js"></script>
+</body>
+</html>
