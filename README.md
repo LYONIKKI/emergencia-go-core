@@ -16,3 +16,6 @@ Sistema hospitalario de gestión de atenciones de emergencia, monitoreo en tiemp
 Copyright (c) 2026 Ing. Anhgelo Smith Vega Poma (CIP N° 381913). Todos los derechos reservados.
 Queda prohibida la reproducción, copia o uso comercial sin autorización expresa del autor.
 - 
+
+### 🚀 Despliegue en Servidor (Producción)
+El microservicio se compila como binario nativo y se orquesta mediante un demonio `systemd` (`emergencia_api.service`) escuchando en `http://127.0.0.1:8080`, integrado a Apache HTTP Server mediante proxy inverso y enlaces simbólicos.
