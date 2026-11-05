@@ -19,3 +19,4 @@ sudo systemctl status emergencia-go
 sudo systemctl restart emergencia-go
 
 sudo journalctl -u emergencia-go -f
+
