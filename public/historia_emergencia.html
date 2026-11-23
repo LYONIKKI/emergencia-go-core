@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Historia Clínica de Emergencia</title>
+    <style>
+        @page { size: A4 portrait; margin: 10mm 14mm; }
+        * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; color: #000; }
+        body { margin: 0; padding: 0; font-size: 10.5px; background: #e5e7eb; }
+
+        .no-print {
+            background: #1f2937; color: #fff; padding: 10px 24px;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 50;
+        }
+        .no-print button {
+            padding: 8px 15px; border: none; border-radius: 6px;
+            font-weight: bold; cursor: pointer; font-size: 12px;
+        }
+        .btn-pdf { background: #dc2626; color: #fff; }
+
+        .page {
+            width: 210mm;
+            min-height: 296mm;
+            background: #fff;
+            margin: 14px auto;
+            padding: 10mm 14mm;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .page-break { page-break-after: always; break-after: page; }
+
+        @media print {
+            body { background: #fff; }
+            .no-print { display: none !important; }
+            .page {
+                width: 100%;
+                min-height: 275mm;
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+            }
+        }
+
+        /* Encabezado institucional */
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+        .header img { height: 56px; object-fit: contain; }
+        .header-center { text-align: center; flex: 1; padding-right: 30px; }
+        .header-center h2 { margin: 0; font-size: 11.5px; font-weight: bold; }
+        .header-center p { margin: 1px 0; font-size: 9.5px; }
+        .pag { font-size: 9.5px; align-self: flex-start; white-space: nowrap; }
+
+        .doc-title {
+            text-align: center; font-size: 14px; font-weight: bold;
+            margin: 6px 0 10px 0; letter-spacing: 0.3px;
+        }
+
+        /* Tabla Filiación */
+        .grid-form { width: 100%; border-collapse: collapse; margin-bottom: 6px; }
+        .grid-form td { padding: 2.5px 2px; vertical-align: top; font-size: 10.5px; }
+        .lbl { font-weight: bold; white-space: nowrap; width: 132px; }
+        .val { font-weight: normal; }
+        .lbl-r { font-weight: bold; white-space: nowrap; width: 115px; padding-left: 12px !important; }
+
+        .forma-wrap { display: inline-flex; align-items: center; gap: 12px; margin-left: 4px; }
+        .forma-item { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; }
+        .check-box {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 15px; height: 16px; border: 1.2px solid #000;
+            font-weight: bold; font-size: 11px;
+        }
+
+        /* Funciones vitales (fila inferior corrida sin divisiones) */
+        .fv-title { font-weight: bold; font-size: 10.5px; margin: 4px 0 3px 0; display: flex; justify-content: space-between; }
+        .fv-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+        .fv-table th, .fv-table td { border: 1.2px solid #000; text-align: left; padding: 3px 5px; font-size: 10px; }
+        .fv-table td { height: 22px; }
+
+        /* Secciones clínicas en blanco fieles al PDF */
+        .sec-title { font-weight: bold; font-size: 10.5px; margin: 8px 0 4px 0; text-transform: uppercase; }
+        .field-lbl { font-weight: bold; font-size: 10px; margin-bottom: 2px; }
+        .anamnesis-top {
+            display: flex; align-items: center; font-weight: bold; font-size: 10px; margin-top: 2px;
+        }
+        .space-md { height: 28px; }
+        .space-relato { height: 64px; }
+        .space-antec { height: 42px; }
+        .space-xl { height: 95px; }
+
+        /* Tabla Diagnósticos Página 2 fiel a image_4d3f0e.png */
+        .dx-table { width: 100%; border-collapse: collapse; margin: 6px 0 14px 0; }
+        .dx-head-left {
+            border-left: 1.3px solid #000;
+            border-bottom: 1.3px solid #000;
+            text-align: left;
+            font-weight: bold;
+            font-size: 11px;
+            padding: 4px 6px;
+        }
+        .dx-head-cie {
+            border-left: 1.3px solid #000;
+            border-right: 1.3px solid #000;
+            border-bottom: 1.3px solid #000;
+            text-align: center;
+            font-weight: bold;
+            font-size: 10.5px;
+            padding: 4px 6px;
+        }
+        .dx-cell {
+            border: 1.3px solid #000;
+            padding: 5px 6px;
+            font-size: 10.5px;
+            height: 25px;
+        }
+        .pdr-cell {
+            border: 1.3px solid #000;
+            text-align: center;
+            font-size: 10.5px;
+            width: 24px;
+            padding: 4px 2px;
+        }
+
+        /* Egreso, Destino y Firma */
+        .egreso-row { font-weight: bold; font-size: 10px; margin-bottom: 14px; display: flex; }
+        .destino-wrap {
+            display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+            margin: 14px 0; font-size: 10px; font-weight: bold;
+        }
+        .destino-item { display: inline-flex; align-items: center; gap: 4px; }
+        .firma-box {
+            margin-top: 42px; text-align: center; width: 280px; align-self: center;
+        }
+        .firma-line { border-top: 1.2px solid #000; padding-top: 4px; font-size: 10px; font-weight: bold; }
+        .page-num { text-align: center; font-size: 9.5px; margin-top: 6px; }
+        
+        /* Renglones finos exclusivos de la Página 2 */
+        .p2-line {
+            width: 100%;
+            border-bottom: 1px solid #9ca3af;
+            height: 16px;
+        }
+        .p2-inline {
+            display: flex;
+            align-items: flex-end;
+            font-weight: bold;
+            font-size: 10px;
+            height: 18px;
+            border-bottom: 1px solid #9ca3af;
+        }
+        .enfermeria-sec {
+            margin-top: 14px;
+            width: 100%;
+            text-align: left;
+        }
+        .enfermeria-title {
+            font-weight: bold;
+            font-size: 10.5px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .enfermeria-space {
+            height: 85px;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Barra superior oculta al imprimir -->
+    <div class="no-print">
+        <span id="status-carga">Cargando datos de Historia Clínica...</span>
+        <div>
+            <button class="btn-pdf" onclick="window.print()">Imprimir / Guardar PDF (2 Hojas)</button>
+        </div>
+    </div>
+
+    <!-- ==================== PÁGINA 1 DE 2 ==================== -->
+    <div class="page page-break">
+        <div>
+            <div class="header">
+                <img src="img/hospital_logo.png" alt="Logo Hospital Carrión">
+                <div class="header-center">
+                    <h2>HOSPITAL REGIONAL DANIEL ALCIDES CARRION GARCIA</h2>
+                    <p>Av. Daniel Alcides Carrión 520, Cerro De Pasco</p>
+                    <p>TELEFONO: (063) 422049</p>
+                </div>
+                <div class="pag">Pagina 1 de 2</div>
+            </div>
+
+            <div class="doc-title">HISTORIA CLÍNICA DE EMERGENCIA</div>
+
+            <!-- Filiación -->
+            <table class="grid-form">
+                <tr>
+                    <td class="lbl">Nro Historia:</td>
+                    <td class="val" id="nro_historia"></td>
+                    <td class="lbl-r">Nro Cuenta:</td>
+                    <td class="val" id="nro_cuenta"></td>
+                </tr>
+                <tr>
+                    <td class="lbl">Apellidos Y Nombres:</td>
+                    <td class="val" id="apellidos_nombres"></td>
+                    <td class="lbl-r">DNI:</td>
+                    <td class="val" id="dni"></td>
+                </tr>
+                <tr>
+                    <td class="lbl">Fecha ingreso:</td>
+                    <td class="val" id="fecha_ingreso"></td>
+                    <td class="lbl-r">Edad:</td>
+                    <td class="val" id="edad"></td>
+                </tr>
+                <tr>
+                    <td class="lbl">Hora ingreso:</td>
+                    <td class="val" id="hora_ingreso"></td>
+                    <td class="lbl-r">Fecha nacimiento:</td>
+                    <td class="val" id="fecha_nacimiento"></td>
+                </tr>
+                <tr>
+                    <td class="lbl">Consultorio médico:</td>
+                    <td class="val" id="consultorio"></td>
+                    <td class="lbl-r">Sexo:</td>
+                    <td class="val" id="sexo"></td>
+                </tr>
+                <tr>
+                    <td class="lbl">Médico:</td>
+                    <td class="val" id="medico"></td>
+                    <td></td><td></td>
+                </tr>
+                <tr>
+                    <td class="lbl">Teléfono:</td>
+                    <td class="val" id="telefono"></td>
+                    <td class="lbl-r">Ocupacion:</td>
+                    <td class="val" id="ocupacion"></td>
+                </tr>
+                <tr>
+                    <td class="lbl">Dirección:</td>
+                    <td class="val" colspan="3" id="direccion"></td>
+                </tr>
+                <tr>
+                    <td class="lbl">Departamento:</td>
+                    <td class="val" id="departamento"></td>
+                    <td class="lbl-r">Provincia:</td>
+                    <td class="val" id="provincia"></td>
+                </tr>
+                <tr>
+                    <td class="lbl">Distrito:</td>
+                    <td class="val" colspan="3" id="distrito"></td>
+                </tr>
+                <tr>
+                    <td class="lbl">Acompañante:</td>
+                    <td class="val" colspan="3" id="acompaniante"></td>
+                </tr>
+                <tr>
+                    <td class="lbl">Forma Ingreso:</td>
+                    <td colspan="3">
+                        <div class="forma-wrap">
+                            <span class="forma-item">Caminan <span class="check-box"></span></span>
+                            <span class="forma-item">S.Rued <span class="check-box"></span></span>
+                            <span class="forma-item">Camilla <span class="check-box"></span></span>
+                            <span class="forma-item">Otro <span class="check-box"></span></span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Funciones Vitales y Prioridad en blanco (fila inferior corrida) -->
+            <div class="fv-title">
+                <span>FUNCIONES VITALES :</span>
+                <span style="padding-right: 110px;">Prioridad:</span>
+            </div>
+            <table class="fv-table">
+                <tr>
+                    <th width="14%">PA:</th>
+                    <th width="14%">FR:</th>
+                    <th width="14%">FC:</th>
+                    <th width="15%">SAT.O2</th>
+                    <th width="14%">T°:</th>
+                    <th width="14%">PESO</th>
+                    <th width="15%">TALLA</th>
+                </tr>
+                <tr>
+                    <td colspan="7"></td>
+                </tr>
+            </table>
+
+            <!-- Anamnesis fiel a image_4d43c4.png -->
+            <div class="sec-title">ANAMNESIS</div>
+            <div class="anamnesis-top">
+                <span style="width: 34%;">TE:</span>
+                <span>MOTIVO DE CONSULTA:</span>
+            </div>
+            <div class="space-relato"></div>
+            <div class="field-lbl">RELATO:</div>
+            <div class="space-relato"></div>
+            <div class="field-lbl">ANTECEDENTES:</div>
+            <div class="space-antec"></div>
+
+            <!-- Examen Físico sin líneas -->
+            <div class="sec-title">EXAMEN FISICO:</div>
+            <div class="field-lbl">GENERAL:</div>
+            <div class="space-md"></div>
+            <div class="field-lbl">RESPIRATORIO:</div>
+            <div class="space-md"></div>
+            <div class="field-lbl">CARDIOVASCULAR:</div>
+            <div class="space-md"></div>
+            <div class="field-lbl">ABDOMEN:</div>
+            <div class="space-md"></div>
+            <div class="field-lbl">NEUROLOGICO:</div>
+            <div class="space-md"></div>
+            <div class="field-lbl">GENITOURINARIO:</div>
+            <div class="space-md"></div>
+            <div class="field-lbl">LOCOMOTOR:</div>
+            <div class="space-md"></div>
+            <div class="field-lbl">OTROS:</div>
+            <div class="space-md"></div>
+        </div>
+        <div class="page-num">1</div>
+    </div>
+
+    <!-- ==================== PÁGINA 2 DE 2 ==================== -->
+    <div class="page">
+        <div>
+            <div class="header">
+                <img src="img/hospital_logo.png" alt="Logo Hospital Carrión">
+                <div class="header-center">
+                    <h2>HOSPITAL REGIONAL DANIEL ALCIDES CARRION GARCIA</h2>
+                    <p>Av. Daniel Alcides Carrión 520, Cerro De Pasco</p>
+                    <p>TELEFONO: (063) 422049</p>
+                </div>
+                <div class="pag">Pagina 2 de 2</div>
+            </div>
+
+            <!-- Tabla Problemas Diagnósticos con columnas P | D | R -->
+            <table class="dx-table">
+                <tr>
+                    <th colspan="4" class="dx-head-left">PROBLEMAS DIAGNÓSTICOS :</th>
+                    <th width="20%" class="dx-head-cie">Código CIE-10</th>
+                </tr>
+                <tr>
+                    <td class="dx-cell"><b>DX1</b></td>
+                    <td class="pdr-cell">P</td>
+                    <td class="pdr-cell">D</td>
+                    <td class="pdr-cell">R</td>
+                    <td class="dx-cell"></td>
+                </tr>
+                <tr>
+                    <td class="dx-cell"><b>DX2</b></td>
+                    <td class="pdr-cell">P</td>
+                    <td class="pdr-cell">D</td>
+                    <td class="pdr-cell">R</td>
+                    <td class="dx-cell"></td>
+                </tr>
+                <tr>
+                    <td class="dx-cell"><b>DX3</b></td>
+                    <td class="pdr-cell">P</td>
+                    <td class="pdr-cell">D</td>
+                    <td class="pdr-cell">R</td>
+                    <td class="dx-cell"></td>
+                </tr>
+                <tr>
+                    <td class="dx-cell"><b>DX4</b></td>
+                    <td class="pdr-cell">P</td>
+                    <td class="pdr-cell">D</td>
+                    <td class="pdr-cell">R</td>
+                    <td class="dx-cell"></td>
+                </tr>
+            </table>
+
+            <!-- Plan de Trabajo con sus 4 renglones -->
+            <div class="sec-title">PLAN DE TRABAJO:</div>
+            <div class="p2-line"></div>
+            <div class="p2-line"></div>
+            <div class="p2-line"></div>
+            <div class="p2-line"></div>
+
+            <!-- Tratamiento con sus 2 renglones -->
+            <div class="sec-title" style="margin-top: 8px;">TRATAMIENTO:</div>
+            <div class="p2-line"></div>
+            <div class="p2-line"></div>
+
+            <!-- Evolución con sus renglones -->
+            <div class="sec-title" style="margin-top: 8px;">EVOLUCIÓN:</div>
+            <div class="p2-line"></div>
+            <div class="p2-line"></div>
+            <div class="p2-line"></div>
+
+            <!-- Condición de Egreso con sus renglones -->
+            <div class="p2-inline" style="margin-top: 4px;">CONDICION DE EGRESO:</div>
+            <div class="p2-line"></div>
+            <div class="p2-line"></div>
+            <div class="p2-line"></div>
+
+            <!-- Tiempo de Permanencia con sus renglones -->
+            <div class="p2-inline" style="margin-top: 4px; padding-left: 24px;">TIEMPO DE PERMANENCIA:</div>
+            <div class="p2-line"></div>
+            <div class="p2-line"></div>
+
+            <!-- Fecha Alta y Hora Alta -->
+            <div class="p2-inline" style="margin-top: 4px; padding-left: 24px;">
+                <span style="width: 52%;">FECHA ALTA:</span>
+                <span>HORA ALTA:</span>
+            </div>
+            <div class="p2-line"></div>
+
+            <!-- Destino -->
+            <div class="destino-wrap" style="margin: 8px 0 4px 0;">
+                <span>DESTINO:</span>
+                <span class="destino-item">ALTA M: <span class="check-box"></span></span>
+                <span class="destino-item">ALTA VOL: <span class="check-box"></span></span>
+                <span class="destino-item">HOSP: <span class="check-box"></span></span>
+                <span class="destino-item">REF: <span class="check-box"></span></span>
+                <span class="destino-item">MORGUE: <span class="check-box"></span></span>
+                <span class="destino-item">OTRO: <span class="check-box"></span></span>
+            </div>
+            <div class="p2-line"></div>
+            <div class="p2-line"></div>
+            <div class="p2-line"></div>
+
+            <!-- Firma Médica -->
+            <div style="display: flex; justify-content: center; margin-top: 28px;">
+                <div class="firma-box" style="margin-top: 0;">
+                    <div class="firma-line">Firma y Sello del Médico Responsable Atencion/Emergencia</div>
+                </div>
+            </div>
+
+            <!-- Espacio final para Anotaciones de Enfermería -->
+            <div class="enfermeria-sec">
+                <div class="enfermeria-title">ANOTACIONES DE ENFERMERÍA:</div>
+                <div class="enfermeria-space"></div>
+            </div>
+        </div>
+
+        <div class="page-num">2</div>
+    </div>
+
+    <script>
+        const API_URL = "http://172.16.10.240:8080/api";
+        const params = new URLSearchParams(window.location.search);
+        const cuenta = params.get('cuenta');
+
+        fetch(`${API_URL}/emergencia/historia-clinica/${cuenta}`)
+            .then(r => {
+                if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                return r.json();
+            })
+            .then(d => {
+                if (d.error) {
+                    document.getElementById('status-carga').textContent = "Error: " + d.error;
+                    return;
+                }
+                document.getElementById('status-carga').textContent = `Historia Clínica N° ${d.nro_historia} - Cuenta ${d.nro_cuenta}`;
+
+                for (const [k, v] of Object.entries(d)) {
+                    const el = document.getElementById(k);
+                    if (el) el.textContent = v;
+                }
+
+                requestAnimationFrame(() => {
+                    setTimeout(() => window.print(), 150);
+                });
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById('status-carga').textContent = "Error conectando con el servidor Go (:8080)";
+            });
+    </script>
+</body>
+</html>

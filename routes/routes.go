@@ -19,6 +19,9 @@ func SetupRoutes(app *fiber.App) {
 	emg.Get("/pacientes-hoy", controllers.GetPacientesHoy)
 	emg.Get("/ticket/:cuenta", controllers.GetTicketData)
 	emg.Get("/historial-atenciones", controllers.GetHistorialAtenciones)
+	emg.Get("/historia-clinica/:cuenta", controllers.GetHistoriaClinicaEmergencia)
+	emg.Get("/ocupaciones", controllers.GetTiposOcupacion)
+	emg.Post("/actualizar-ocupacion", controllers.ActualizarOcupacionPaciente)
 
 	arch := api.Group("/archivos")
 	arch.Get("/citas-ce", controllers.GetCitasHoyManana)
