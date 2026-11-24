@@ -9,28 +9,29 @@ import (
 )
 
 type HistoriaEmergenciaResponse struct {
-	IdPaciente       int    `json:"id_paciente"`
-	IdTipoOcupacion  int    `json:"id_tipo_ocupacion"`
-	NroHistoria      string `json:"nro_historia"`
-	ApellidosNombres string `json:"apellidos_nombres"`
-	FechaIngreso     string `json:"fecha_ingreso"`
-	HoraIngreso      string `json:"hora_ingreso"`
-	Consultorio      string `json:"consultorio"`
-	Medico           string `json:"medico"`
-	Telefono         string `json:"telefono"`
-	Direccion        string `json:"direccion"`
-	Departamento     string `json:"departamento"`
-	Distrito         string `json:"distrito"`
-	Acompaniante     string `json:"acompaniante"`
-	FormaIngreso     string `json:"forma_ingreso"`
-	NroCuenta        int    `json:"nro_cuenta"`
-	DNI              string `json:"dni"`
-	Edad             string `json:"edad"`
-	FechaNacimiento  string `json:"fecha_nacimiento"`
-	Sexo             string `json:"sexo"`
-	Ocupacion        string `json:"ocupacion"`
-	Provincia        string `json:"provincia"`
-	Prioridad        string `json:"prioridad"`
+	IdPaciente           int    `json:"id_paciente"`
+	IdTipoOcupacion      int    `json:"id_tipo_ocupacion"`
+	NroHistoria          string `json:"nro_historia"`
+	ApellidosNombres     string `json:"apellidos_nombres"`
+	FechaIngreso         string `json:"fecha_ingreso"`
+	HoraIngreso          string `json:"hora_ingreso"`
+	Consultorio          string `json:"consultorio"`
+	Medico               string `json:"medico"`
+	Telefono             string `json:"telefono"`
+	Direccion            string `json:"direccion"`
+	Departamento         string `json:"departamento"`
+	Distrito             string `json:"distrito"`
+	Acompaniante         string `json:"acompaniante"`
+	FormaIngreso         string `json:"forma_ingreso"`
+	FuenteFinanciamiento string `json:"fuente_financiamiento"`
+	NroCuenta            int    `json:"nro_cuenta"`
+	DNI                  string `json:"dni"`
+	Edad                 string `json:"edad"`
+	FechaNacimiento      string `json:"fecha_nacimiento"`
+	Sexo                 string `json:"sexo"`
+	Ocupacion            string `json:"ocupacion"`
+	Provincia            string `json:"provincia"`
+	Prioridad            string `json:"prioridad"`
 }
 
 type OcupacionItem struct {
@@ -144,7 +145,8 @@ func GetHistoriaClinicaEmergencia(c *fiber.Ctx) error {
 	    UPPER(ISNULL(ae.NombreAcompaniante, '')) AS Acompaniante,
 	    '' AS FormaIngreso,
 	    a.IdCuentaAtencion AS NroCuenta,
-	    UPPER(ISNULL(p.NroDocumento, '')) AS DNI,
+	    UPPER(ISNULL(f.Descripcion, 'PARTICULAR')) AS FuenteFinanciamiento,
+		UPPER(ISNULL(p.NroDocumento, '')) AS DNI,
 	    UPPER(CAST(ISNULL(a.Edad, 0) AS VARCHAR(10)) + ' ' + ISNULL(te.Descripcion, 'AÑOS')) AS Edad,
 	    ISNULL(CONVERT(VARCHAR(10), p.FechaNacimiento, 103), '') AS FechaNacimiento,
 	    UPPER(ISNULL(ts.Descripcion, '')) AS Sexo,
@@ -163,6 +165,7 @@ func GetHistoriaClinicaEmergencia(c *fiber.Ctx) error {
 	LEFT JOIN [dbo].[Distritos] dist WITH (NOLOCK) ON p.IdDistritoDomicilio = dist.IdDistrito
 	LEFT JOIN [dbo].[Provincias] prov WITH (NOLOCK) ON dist.IdProvincia = prov.IdProvincia
 	LEFT JOIN [dbo].[Departamentos] dep WITH (NOLOCK) ON prov.IdDepartamento = dep.IdDepartamento
+	LEFT JOIN [dbo].[FuentesFinanciamiento] f WITH (NOLOCK) ON a.IdFuenteFinanciamiento = f.idFuenteFinanciamiento
 	WHERE a.IdCuentaAtencion = @p1`
 
 	var h HistoriaEmergenciaResponse
@@ -171,7 +174,7 @@ func GetHistoriaClinicaEmergencia(c *fiber.Ctx) error {
 		&h.NroHistoria, &h.ApellidosNombres, &h.FechaIngreso, &h.HoraIngreso,
 		&h.Consultorio, &h.Medico, &h.Telefono, &h.Direccion,
 		&h.Departamento, &h.Distrito, &h.Acompaniante, &h.FormaIngreso,
-		&h.NroCuenta, &h.DNI, &h.Edad, &h.FechaNacimiento,
+		&h.NroCuenta, &h.FuenteFinanciamiento, &h.DNI, &h.Edad, &h.FechaNacimiento,
 		&h.Sexo, &h.Ocupacion, &h.Provincia, &h.Prioridad,
 	)
 	if err != nil {
